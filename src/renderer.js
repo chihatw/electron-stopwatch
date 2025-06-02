@@ -32,13 +32,13 @@ const StopwatchApp = (() => {
   }
 
   function updateModeUI() {
-    if (mode === 'working') {
-      document.body.classList.remove('light');
-      modeLabel.textContent = 'Working';
-      toggleModeCheckbox.checked = false;
-    } else {
+    if (mode === 'break') {
       document.body.classList.add('light');
       modeLabel.textContent = 'Break';
+      toggleModeCheckbox.checked = false;
+    } else {
+      document.body.classList.remove('light');
+      modeLabel.textContent = 'Working';
       toggleModeCheckbox.checked = true;
     }
   }
@@ -59,7 +59,7 @@ const StopwatchApp = (() => {
 
   // --- モード切り替え ---
   function switchModeByCheckbox() {
-    mode = toggleModeCheckbox.checked ? 'break' : 'working';
+    mode = toggleModeCheckbox.checked ? 'working' : 'break';
     updateModeUI();
     reset(); // モード切り替え時はリセット
     if (window.electronAPI) window.electronAPI.updateTime('00:00:00', mode);

@@ -25,6 +25,19 @@ function createWindow() {
     event.preventDefault();
     win.hide();
   });
+
+  // ウィンドウ生成時にデフォルトモードをbreakに設定
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.executeJavaScript(`
+      if (typeof StopwatchApp !== 'undefined' && StopwatchApp.init) {
+        // StopwatchApp.init() を再実行して状態をリセット
+        StopwatchApp.init();
+      }
+      document.getElementById('toggle-mode').checked = false;
+      const event = new Event('change');
+      document.getElementById('toggle-mode').dispatchEvent(event);
+    `);
+  });
 }
 
 app.whenReady().then(() => {

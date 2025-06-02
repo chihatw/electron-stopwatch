@@ -16,6 +16,7 @@ const StopwatchApp = (() => {
   function updateDisplay() {
     if (!lastStartTimestamp) {
       display.textContent = '00:00:00';
+      if (window.electronAPI) window.electronAPI.updateTime('00:00:00', mode);
       return;
     }
     const now = Date.now();
@@ -27,6 +28,7 @@ const StopwatchApp = (() => {
       minutes % 60
     ).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     display.textContent = formattedTime;
+    if (window.electronAPI) window.electronAPI.updateTime(formattedTime, mode);
   }
 
   function updateModeUI() {
@@ -60,6 +62,7 @@ const StopwatchApp = (() => {
     mode = toggleModeCheckbox.checked ? 'break' : 'working';
     updateModeUI();
     reset(); // モード切り替え時はリセット
+    if (window.electronAPI) window.electronAPI.updateTime('00:00:00', mode);
   }
 
   // --- イベント登録 ---
@@ -82,3 +85,19 @@ const StopwatchApp = (() => {
 
 // アプリ初期化
 StopwatchApp.init();
+
+// Trayメニューからの操作を受け取る
+if (window.electronAPI) {
+  window.electronAPI.onTraySwitchMode(() => {
+    document.getElementById('toggle-mode').checked =
+      !document.getElementById('toggle-mode').checked;
+    const event = new Event('change');
+    document.getElementById('toggle-mode').dispatchEvent(event);
+  });
+  window.electronAPI.onTrayReset(() => {
+    document.getElementById('reset').click();
+  });
+  window.electronAPI.onTrayStart(() => {
+    document.getElementById('start').click();
+  });
+}

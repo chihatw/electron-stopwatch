@@ -1,0 +1,23 @@
+{
+  "name": "electron-stopwatch",
+  "version": "1.0.0",
+  "description": "A simple stopwatch application built with Electron.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager ."
+  },
+  "keywords": [
+    "electron",
+    "stopwatch",
+    "app"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^25.0.0"
+  },
+  "devDependencies": {
+    "electron-packager": "^15.0.0"
+  }
+}

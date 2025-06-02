@@ -20,7 +20,10 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow();
 
-  tray = new Tray(path.join(__dirname, '../assets/stopwatch-black.png'));
+  // TrayアイコンをisTemplate: trueで生成
+  tray = new Tray(path.join(__dirname, '../assets/trayicon.png'), {
+    isTemplate: true,
+  });
   tray.setToolTip('ストップウォッチ');
   tray.setTitle('00:00:00 W');
 
@@ -89,6 +92,7 @@ app.whenReady().then(() => {
     let modeMark = '';
     if (mode === 'working') modeMark = ' W';
     else if (mode === 'break') modeMark = ' B';
+    tray.setImage(path.join(__dirname, '../assets/trayicon.png'));
     tray.setTitle(timeString + modeMark);
   });
 });

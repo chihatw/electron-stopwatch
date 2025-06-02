@@ -1,69 +1,62 @@
-let timer;
-let isRunning = false;
-let elapsedTime = 0;
-let lastStartTimestamp = null; // 計測再開時の絶対時刻
+// ストップウォッチアプリ本体
+const StopwatchApp = (() => {
+  // --- 状態管理 ---
+  let timer = null;
+  let isRunning = false;
+  let elapsedTime = 0;
+  let lastStartTimestamp = null; // 計測再開時の絶対時刻
+  let mode = 'working'; // 'working' or 'break'
 
-const startButton = document.getElementById('start');
-const stopButton = document.getElementById('stop');
-const resetButton = document.getElementById('reset');
-const display = document.getElementById('display');
-const modeLabel = document.getElementById('mode-label');
-const toggleModeCheckbox = document.getElementById('toggle-mode');
+  // --- DOM取得 ---
+  const startButton = document.getElementById('start');
+  const stopButton = document.getElementById('stop');
+  const resetButton = document.getElementById('reset');
+  const display = document.getElementById('display');
+  const modeLabel = document.getElementById('mode-label');
+  const toggleModeCheckbox = document.getElementById('toggle-mode');
 
-let mode = 'working'; // 'working' or 'break'
-
-function updateDisplay() {
-  const seconds = Math.floor(elapsedTime / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const formattedTime = `${String(hours).padStart(2, '0')}:${String(
-    minutes % 60
-  ).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-  display.textContent = formattedTime;
-}
-
-function applyTheme() {
-  if (mode === 'working') {
-    document.body.classList.remove('light');
-    modeLabel.textContent = 'Working';
-    toggleModeCheckbox.checked = false;
-  } else {
-    document.body.classList.add('light');
-    modeLabel.textContent = 'Break';
-    toggleModeCheckbox.checked = true;
+  // --- UI更新 ---
+  function updateDisplay() {
+    const seconds = Math.floor(elapsedTime / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const formattedTime = `${String(hours).padStart(2, '0')}:${String(
+      minutes % 60
+    ).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+    display.textContent = formattedTime;
   }
-}
 
-function switchModeByCheckbox() {
-  mode = toggleModeCheckbox.checked ? 'break' : 'working';
-  applyTheme();
-  isRunning = false;
-  clearInterval(timer);
-  elapsedTime = 0;
-  lastStartTimestamp = null;
-  updateDisplay();
-}
+  function updateModeUI() {
+    if (mode === 'working') {
+      document.body.classList.remove('light');
+      modeLabel.textContent = 'Working';
+      toggleModeCheckbox.checked = false;
+    } else {
+      document.body.classList.add('light');
+      modeLabel.textContent = 'Break';
+      toggleModeCheckbox.checked = true;
+    }
+  }
 
-startButton.addEventListener('click', () => {
-  if (!isRunning) {
+  // --- ストップウォッチ操作 ---
+  function start() {
+    if (isRunning) return;
     isRunning = true;
-    lastStartTimestamp = Date.now(); // 計測再開時の時刻を記録
+    lastStartTimestamp = Date.now();
     timer = setInterval(() => {
       elapsedTime += 100;
       updateDisplay();
     }, 100);
   }
-});
 
-stopButton.addEventListener('click', () => {
-  if (isRunning) {
+  function stop() {
+    if (!isRunning) return;
     isRunning = false;
     clearInterval(timer);
     // スリープ復帰時の補正
     if (lastStartTimestamp) {
       const now = Date.now();
       const diff = now - lastStartTimestamp;
-      // diffがelapsedTimeより大きい場合、スリープしていたとみなして補正
       if (diff > elapsedTime + 200) {
         elapsedTime += diff - elapsedTime;
         updateDisplay();
@@ -71,28 +64,50 @@ stopButton.addEventListener('click', () => {
     }
     lastStartTimestamp = null;
   }
-});
 
-resetButton.addEventListener('click', () => {
-  isRunning = false;
-  clearInterval(timer);
-  elapsedTime = 0;
-  lastStartTimestamp = null;
-  updateDisplay();
-});
-
-toggleModeCheckbox.addEventListener('change', switchModeByCheckbox);
-
-// ウィンドウがフォーカスを取り戻したときにスリープ復帰を検知して補正
-window.addEventListener('focus', () => {
-  if (isRunning && lastStartTimestamp) {
-    const now = Date.now();
-    const diff = now - lastStartTimestamp;
-    elapsedTime += diff - (elapsedTime % 100);
-    lastStartTimestamp = now;
+  function reset() {
+    isRunning = false;
+    clearInterval(timer);
+    elapsedTime = 0;
+    lastStartTimestamp = null;
     updateDisplay();
   }
-});
 
-// 初期テーマ適用
-applyTheme();
+  // --- モード切り替え ---
+  function switchModeByCheckbox() {
+    mode = toggleModeCheckbox.checked ? 'break' : 'working';
+    updateModeUI();
+    reset(); // モード切り替え時はリセット
+  }
+
+  // --- イベント登録 ---
+  function addEventListeners() {
+    startButton.addEventListener('click', start);
+    stopButton.addEventListener('click', stop);
+    resetButton.addEventListener('click', reset);
+    toggleModeCheckbox.addEventListener('change', switchModeByCheckbox);
+    window.addEventListener('focus', () => {
+      // ウィンドウ復帰時のスリープ補正
+      if (isRunning && lastStartTimestamp) {
+        const now = Date.now();
+        const diff = now - lastStartTimestamp;
+        elapsedTime += diff - (elapsedTime % 100);
+        lastStartTimestamp = now;
+        updateDisplay();
+      }
+    });
+  }
+
+  // --- 初期化 ---
+  function init() {
+    updateModeUI();
+    updateDisplay();
+    addEventListeners();
+  }
+
+  // --- 外部公開 ---
+  return { init };
+})();
+
+// アプリ初期化
+StopwatchApp.init();

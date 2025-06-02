@@ -15,6 +15,16 @@ function createWindow() {
     },
   });
   win.loadFile(path.join(__dirname, 'index.html'));
+
+  // ウィンドウを閉じるボタンで非表示にし、計測は継続
+  win.on('close', (event) => {
+    // 「終了」メニューからの終了時は本当に終了、それ以外は非表示
+    if (app.isQuitting) {
+      return;
+    }
+    event.preventDefault();
+    win.hide();
+  });
 }
 
 app.whenReady().then(() => {
@@ -47,6 +57,7 @@ app.whenReady().then(() => {
     }
   };
 
+  // 「終了」メニュー選択時にapp.isQuittingをtrueにしてからapp.quit()
   const trayMenu = Menu.buildFromTemplate([
     {
       label: 'スタート',
@@ -82,6 +93,7 @@ app.whenReady().then(() => {
     {
       label: 'electron-stopwatch を終了',
       click: () => {
+        app.isQuitting = true;
         app.quit();
       },
     },

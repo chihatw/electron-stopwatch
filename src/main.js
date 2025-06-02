@@ -120,3 +120,7 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+app.on('before-quit', () => {
+  app.isQuitting = true;
+});

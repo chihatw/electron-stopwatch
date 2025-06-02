@@ -104,7 +104,7 @@ app.whenReady().then(() => {
     },
     { type: 'separator' },
     {
-      label: 'electron-stopwatch を終了',
+      label: 'stopwatch を終了',
       click: () => {
         app.isQuitting = true;
         app.quit();

@@ -1,6 +1,7 @@
 /* ストップウォッチ用の洗練された黒背景デザイン */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100&display=swap');
 
 body {
   background: #181a1b;
@@ -11,6 +12,13 @@ body {
   align-items: center;
   justify-content: center;
   font-family: 'Segoe UI', 'Arial', sans-serif;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light {
+  background: #f5f6fa;
+  color: #222;
 }
 
 #stopwatch {
@@ -21,6 +29,13 @@ body {
   padding: 40px 32px 32px 32px;
   border-radius: 24px;
   box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5);
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light #stopwatch {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 32px rgba(180, 180, 180, 0.2);
 }
 
 #display {
@@ -32,6 +47,50 @@ body {
   text-align: center;
   color: #d0d3d6;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: color 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    text-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light #display {
+  color: #222;
+  text-shadow: 0 2px 8px rgba(200, 200, 200, 0.12);
+}
+
+#mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+#mode-label {
+  font-size: 1.2rem;
+  font-family: 'Noto Sans JP', 'Lato', 'Segoe UI', 'Arial', sans-serif;
+  font-weight: 100;
+  letter-spacing: 0.02em;
+  padding-right: 12px;
+}
+
+body.light #mode-label {
+  color: inherit;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  color: #e0e0e0;
+}
+
+body.light .toggle-btn {
+  color: #222;
+}
+
+.toggle-btn:active {
+  transform: scale(0.95);
 }
 
 .buttons {
@@ -52,11 +111,61 @@ body {
   transition: background 0.2s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
+
 .icon-btn:hover {
   background: #2c2d2e;
 }
+
 .icon-btn svg {
   width: 32px;
   height: 32px;
   fill: #c0c3c6;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #888;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  transition: 0.4s;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.switch input:checked + .slider {
+  background-color: #ff5a5f;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
 }

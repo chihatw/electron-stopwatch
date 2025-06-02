@@ -7,6 +7,10 @@ const startButton = document.getElementById('start');
 const stopButton = document.getElementById('stop');
 const resetButton = document.getElementById('reset');
 const display = document.getElementById('display');
+const modeLabel = document.getElementById('mode-label');
+const toggleModeCheckbox = document.getElementById('toggle-mode');
+
+let mode = 'working'; // 'working' or 'break'
 
 function updateDisplay() {
   const seconds = Math.floor(elapsedTime / 1000);
@@ -16,6 +20,28 @@ function updateDisplay() {
     minutes % 60
   ).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
   display.textContent = formattedTime;
+}
+
+function applyTheme() {
+  if (mode === 'working') {
+    document.body.classList.remove('light');
+    modeLabel.textContent = 'Working';
+    toggleModeCheckbox.checked = false;
+  } else {
+    document.body.classList.add('light');
+    modeLabel.textContent = 'Break';
+    toggleModeCheckbox.checked = true;
+  }
+}
+
+function switchModeByCheckbox() {
+  mode = toggleModeCheckbox.checked ? 'break' : 'working';
+  applyTheme();
+  isRunning = false;
+  clearInterval(timer);
+  elapsedTime = 0;
+  lastStartTimestamp = null;
+  updateDisplay();
 }
 
 startButton.addEventListener('click', () => {
@@ -55,6 +81,8 @@ resetButton.addEventListener('click', () => {
   updateDisplay();
 });
 
+toggleModeCheckbox.addEventListener('change', switchModeByCheckbox);
+
 // ウィンドウがフォーカスを取り戻したときにスリープ復帰を検知して補正
 window.addEventListener('focus', () => {
   if (isRunning && lastStartTimestamp) {
@@ -65,3 +93,6 @@ window.addEventListener('focus', () => {
     updateDisplay();
   }
 });
+
+// 初期テーマ適用
+applyTheme();

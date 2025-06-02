@@ -2,14 +2,11 @@
 const StopwatchApp = (() => {
   // --- 状態管理 ---
   let timer = null;
-  let isRunning = false;
-  let elapsedTime = 0;
-  let lastStartTimestamp = null; // 計測再開時の絶対時刻
+  let lastStartTimestamp = null; // 計測開始時の絶対時刻
   let mode = 'working'; // 'working' or 'break'
 
   // --- DOM取得 ---
   const startButton = document.getElementById('start');
-  const stopButton = document.getElementById('stop');
   const resetButton = document.getElementById('reset');
   const display = document.getElementById('display');
   const modeLabel = document.getElementById('mode-label');
@@ -17,7 +14,13 @@ const StopwatchApp = (() => {
 
   // --- UI更新 ---
   function updateDisplay() {
-    const seconds = Math.floor(elapsedTime / 1000);
+    if (!lastStartTimestamp) {
+      display.textContent = '00:00:00';
+      return;
+    }
+    const now = Date.now();
+    const elapsed = now - lastStartTimestamp;
+    const seconds = Math.floor(elapsed / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const formattedTime = `${String(hours).padStart(2, '0')}:${String(
@@ -40,35 +43,14 @@ const StopwatchApp = (() => {
 
   // --- ストップウォッチ操作 ---
   function start() {
-    if (isRunning) return;
-    isRunning = true;
+    if (timer) return;
     lastStartTimestamp = Date.now();
-    timer = setInterval(() => {
-      elapsedTime += 100;
-      updateDisplay();
-    }, 100);
-  }
-
-  function stop() {
-    if (!isRunning) return;
-    isRunning = false;
-    clearInterval(timer);
-    // スリープ復帰時の補正
-    if (lastStartTimestamp) {
-      const now = Date.now();
-      const diff = now - lastStartTimestamp;
-      if (diff > elapsedTime + 200) {
-        elapsedTime += diff - elapsedTime;
-        updateDisplay();
-      }
-    }
-    lastStartTimestamp = null;
+    timer = setInterval(updateDisplay, 100);
   }
 
   function reset() {
-    isRunning = false;
     clearInterval(timer);
-    elapsedTime = 0;
+    timer = null;
     lastStartTimestamp = null;
     updateDisplay();
   }
@@ -83,19 +65,8 @@ const StopwatchApp = (() => {
   // --- イベント登録 ---
   function addEventListeners() {
     startButton.addEventListener('click', start);
-    stopButton.addEventListener('click', stop);
     resetButton.addEventListener('click', reset);
     toggleModeCheckbox.addEventListener('change', switchModeByCheckbox);
-    window.addEventListener('focus', () => {
-      // ウィンドウ復帰時のスリープ補正
-      if (isRunning && lastStartTimestamp) {
-        const now = Date.now();
-        const diff = now - lastStartTimestamp;
-        elapsedTime += diff - (elapsedTime % 100);
-        lastStartTimestamp = now;
-        updateDisplay();
-      }
-    });
   }
 
   // --- 初期化 ---

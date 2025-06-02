@@ -73,6 +73,35 @@ npx electron-packager . stopwatch --platform=darwin --arch=x64 --overwrite
 
 - 詳細なオプションは [electron-packager 公式ドキュメント](https://github.com/electron/electron-packager) を参照してください。
 
+## Electron の main プロセスと renderer プロセスについて
+
+### main プロセス
+
+- Electron アプリのエントリーポイント。
+- Node.js の API をフルに利用できる。
+- アプリ全体のライフサイクル管理（ウィンドウ生成・終了など）を担当。
+- 例: `src/main.js` で `BrowserWindow` を作成し、`index.html` を読み込む。
+
+### renderer プロセス
+
+- 各ウィンドウごとに動作するプロセス。
+- Web ページ（HTML/CSS/JS）を表示・実行。
+- 通常の Web ブラウザと同じ環境だが、Electron の設定次第で Node.js API も利用可能。
+- 例: `src/renderer.js` で UI の制御やイベント処理を行う。
+
+### 役割の違い
+
+- main プロセスはアプリ全体の制御、renderer プロセスは UI の表示・操作を担当。
+- セキュリティの観点から、renderer プロセスでは Node.js API の利用を制限することが推奨される（`contextIsolation: true` など）。
+
+### プロセス間通信
+
+- main/renderer 間でデータのやり取りが必要な場合は、`ipcMain`/`ipcRenderer`モジュールを使う。
+
+---
+
+このように、Electron アプリは main プロセスと renderer プロセスの役割分担によって構成されています。
+
 ## ライセンス
 
 MIT
